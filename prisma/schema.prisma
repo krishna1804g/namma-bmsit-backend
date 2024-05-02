@@ -14,15 +14,43 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
-  firstName       String?   @db.VarChar(255)
-  lastName        String?   @db.VarChar(255)
-  userName        String?   @unique @db.VarChar(255)
-  email           String?   @unique(map: "email") @db.VarChar(255)
-  password        String?   @db.VarChar(255)
-  sessionId       String?   @db.VarChar(255)
-  isEmailVerified Int?      @default(0) @db.TinyInt
-  otp             String?   @db.VarChar(45)
-  createdAt       DateTime? @default(now()) @db.DateTime(0)
-  updatedAt       DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  id                      String    @id @default(uuid())
+  firstName               String?   @db.VarChar(255)
+  lastName                String?   @db.VarChar(255)
+  userName                String?   @unique @db.VarChar(255)
+  email                   String?   @unique(map: "email") @db.VarChar(255)
+  password                String?   @db.VarChar(255)
+  sessionId               String?   @db.VarChar(255)
+  isEmailVerified         Int?      @default(0) @db.TinyInt
+  otp                     String?   @db.VarChar(45)
+  createdAt               DateTime? @default(now()) @db.DateTime(0)
+  updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  eventStudentCoordinator Event[]   @relation(name: "StudentOrganizer")
+  eventTeacherCoordinator Event[]   @relation(name: "TeacherCoordinator")
+
+  @@unique([email])
+}
+
+model Event {
+  id                      String  @id @default(uuid())
+  categoryType            String // e.g, academic, dept, clubs, fest etc, this can be tags
+  description             String? @db.VarChar(500)
+  title                   String? @unique(map: "Title") 
+  duration                Int? // in hours
+  location                String?
+  locationDetails         String? // additional details for location
+  dateOfStart DateTime?
+  amount                  Int?
+  studentOrganizerHead    String?
+  teacherCoordinator      String?
+  requirements            String? //any prerequisites or materials required
+  status                  String? // upcomming, ongoing or past
+  createdAt               DateTime? @default(now()) @db.DateTime(0)
+  updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  // Updates String? //any changes ( for notification purpose )
+  // feedbackRating Int?  @default(0) // future
+  // registrationDeadline Date?
+  // tagsKeywords // search functionality
+  eventStudentCoordinator User?   @relation(name: "StudentOrganizer", fields: [studentOrganizerHead], references: [id])
+  eventTeacherCoordinator User?   @relation(name: "TeacherCoordinator", fields: [teacherCoordinator], references: [id])
 }
