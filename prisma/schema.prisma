@@ -31,7 +31,8 @@ model Student {
   createdAt               DateTime? @default(now()) @db.DateTime(0)
   updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
   eventStudentCoordinator Event?   @relation(name: "StudentOrganizer")
-
+  EventBooking EventBooking?
+  GrouptEventMapping GroupEventMapping[]
   @@unique([email])
 }
 
@@ -62,6 +63,7 @@ model Event {
   // group or individual
   eventStudentCoordinator Student?   @relation(name: "StudentOrganizer", fields: [studentOrganizerHead], references: [id])
   eventTeacherCoordinator Teacher?   @relation(fields: [teacherCoordinator], references: [id])
+  EventBooking EventBooking?
 }
 
 
@@ -80,15 +82,19 @@ model Teacher {
   Event Event?
 }
 
-// model EventBooking {
-//   id
-//   teamName
-//   teamLeader
-  
-// }
+model EventBooking {
+  id String @id @default(uuid())
+  teamName String @unique
+  teamLeader String @unique
+  event String @unique
+  teamLeaderId Student @relation(fields: [teamLeader], references: [id])
+  eventId Event @relation(fields: [event], references: [id])
+}
 
-// model GroupEventMapping {
-//   studentId
-//   EventBookingId
-// }
+model GroupEventMapping {
+  id String @id @default(uuid())
+  teamMember String?
+  teamName String?
+  teamMemberId Student? @relation(fields: [teamMember], references: [id])
+}
 
