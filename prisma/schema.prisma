@@ -13,34 +13,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Student {
   id                      String    @id @default(uuid())
   firstName               String?   @db.VarChar(255)
   lastName                String?   @db.VarChar(255)
   userName                String?   @unique @db.VarChar(255)
+  usn String? @unique @db.VarChar(10)
+  deptartment String? 
+  semister Int?
   email                   String?   @unique(map: "email") @db.VarChar(255)
   password                String?   @db.VarChar(255)
   sessionId               String?   @db.VarChar(255)
-  isEmailVerified         Int?      @default(0) @db.TinyInt
+  isEmailVerified         Boolean? @default(false)
+  isStudentOrganizer Boolean? @default(false)
   otp                     String?   @db.VarChar(45)
   createdAt               DateTime? @default(now()) @db.DateTime(0)
   updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
   eventStudentCoordinator Event[]   @relation(name: "StudentOrganizer")
-  eventTeacherCoordinator Event[]   @relation(name: "TeacherCoordinator")
 
   @@unique([email])
 }
 
 model Event {
   id                      String  @id @default(uuid())
-  categoryType            String // e.g, academic, dept, clubs, fest etc, this can be tags
-  description             String? @db.VarChar(500)
-  title                   String? @unique(map: "Title") 
+  categoryType            String? // e.g, academic, dept, clubs, fest etc, this can be tags
+  description             String @db.VarChar(500)
+  title                   String @unique(map: "Title") 
   duration                Int? // in hours
   location                String?
   locationDetails         String? // additional details for location
-  dateOfStart DateTime?
+  dateOfEvent DateTime?
+  freeEvent Boolean?
   amount                  Int?
+  totalParticipants Int? @db.MediumInt() // total event participants
+  perTeamParticipants Int? @db.TinyInt() 
   studentOrganizerHead    String?
   teacherCoordinator      String?
   requirements            String? //any prerequisites or materials required
@@ -51,6 +57,38 @@ model Event {
   // feedbackRating Int?  @default(0) // future
   // registrationDeadline Date?
   // tagsKeywords // search functionality
-  eventStudentCoordinator User?   @relation(name: "StudentOrganizer", fields: [studentOrganizerHead], references: [id])
-  eventTeacherCoordinator User?   @relation(name: "TeacherCoordinator", fields: [teacherCoordinator], references: [id])
+  // free or paisd
+  // group or individual
+  eventStudentCoordinator Student?   @relation(name: "StudentOrganizer", fields: [studentOrganizerHead], references: [id])
+  eventTeacherCoordinator Teacher?   @relation(fields: [teacherCoordinator], references: [id])
 }
+
+
+model Teacher {
+  id String @id @default(uuid())
+  name String
+  teacherId String @unique 
+  email String @unique
+  password String 
+  department String?
+  sessionId               String?   @db.VarChar(255)
+  isEmailVerified         Boolean? @default(false)
+  otp                     String?   @db.VarChar(45)
+  createdAt               DateTime? @default(now()) @db.DateTime(0)
+  updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  Event Event[]
+}
+
+// model studentEventBooking {
+//   id
+//   teamName
+//   teamLeader
+  
+// }
+
+// model StudentEventMapping {
+//   studentId
+//   eventId
+//   studentEventBookingId
+// }
+

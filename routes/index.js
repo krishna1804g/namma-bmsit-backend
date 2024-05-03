@@ -1,6 +1,8 @@
 const router = require('express').Router()
-const userRouter = require('./user.router')
+const studentRouter = require('./student.router')
+const eventRouter = require('./event.router')
 
-router.use('/user', userRouter)
+router.use('/user', studentRouter)
+router.use('/event', eventRouter)
 
 module.exports = router;
