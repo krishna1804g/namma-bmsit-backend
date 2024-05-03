@@ -4,16 +4,22 @@ const prisma = new PrismaClient()
 
 const getEventController = async ( req, res ) => {
     try{
-        const { id } = req.query;
-    
+        const { id, title } = req.query;
+        let event;
         // check for correct payload
-        if(!id){
-            res.status(400).json({ error: 'Id required' })
+        if(id){
+            event = await prisma.event.findFirst({
+                where: {id}
+            })   
+        } else if(title){
+            event = await prisma.event.findUnique({
+                where: {
+                    title: title
+                }
+            })
+        } else{
+            event = await prisma.event.findMany()
         }
-
-        const event = await prisma.event.findFirst({
-            where: {id}
-        })
 
         if(!event){
             res.status(404).json({ error: 'Event not found' })

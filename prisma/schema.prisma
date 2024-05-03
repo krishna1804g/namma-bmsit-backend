@@ -21,6 +21,7 @@ model Student {
   usn String? @unique @db.VarChar(10)
   deptartment String? 
   semister Int?
+  phoneNo Int? @unique
   email                   String?   @unique(map: "email") @db.VarChar(255)
   password                String?   @db.VarChar(255)
   sessionId               String?   @db.VarChar(255)
@@ -29,7 +30,7 @@ model Student {
   otp                     String?   @db.VarChar(45)
   createdAt               DateTime? @default(now()) @db.DateTime(0)
   updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
-  eventStudentCoordinator Event[]   @relation(name: "StudentOrganizer")
+  eventStudentCoordinator Event?   @relation(name: "StudentOrganizer")
 
   @@unique([email])
 }
@@ -47,8 +48,8 @@ model Event {
   amount                  Int?
   totalParticipants Int? @db.MediumInt() // total event participants
   perTeamParticipants Int? @db.TinyInt() 
-  studentOrganizerHead    String?
-  teacherCoordinator      String?
+  studentOrganizerHead    String? @unique
+  teacherCoordinator      String? @unique
   requirements            String? //any prerequisites or materials required
   status                  String? // upcomming, ongoing or past
   createdAt               DateTime? @default(now()) @db.DateTime(0)
@@ -76,19 +77,18 @@ model Teacher {
   otp                     String?   @db.VarChar(45)
   createdAt               DateTime? @default(now()) @db.DateTime(0)
   updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
-  Event Event[]
+  Event Event?
 }
 
-// model studentEventBooking {
+// model EventBooking {
 //   id
 //   teamName
 //   teamLeader
   
 // }
 
-// model StudentEventMapping {
+// model GroupEventMapping {
 //   studentId
-//   eventId
-//   studentEventBookingId
+//   EventBookingId
 // }
 
