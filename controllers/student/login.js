@@ -21,27 +21,24 @@ const loginController = async (req, res) => {
             return res.status(400).json({ error: 'Email and Password required' })
         }
 
-        const user = await prisma.user.findUnique({
-            where: { email },
-            include: {
-                company: true,
-            },
+        const student = await prisma.student.findUnique({
+            where: { email }
         });
 
-        if(!user) {
-            return res.status(404).jason({ error: 'User not found' })
+        if(!student) {
+            return res.status(404).jason({ error: 'student not found' })
         }
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
+        const passwordMatch = await bcrypt.compare(password, student.password);
 
         if(!passwordMatch) {
             return res.status(401).jason({ error: 'Incorrect password' });
         }
 
-        if(!user.isEmailVerified) {
+        if(!student.isEmailVerified) {
             const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 
-            await prisma.user.update({
+            await prisma.student.update({
                     where: { email },
                     data: { otp },
                 })
@@ -68,12 +65,12 @@ const loginController = async (req, res) => {
 
         try {
             console.log(process.env.JWT_SECRET)
-            if (!user.sessionId || jwt.verify(user.sessionId, process.env.JWT_SECRET).exp < Date.now() / 1000){
+            if (!student.sessionId || jwt.verify(student.sessionId, process.env.JWT_SECRET).exp < Date.now() / 1000){
                 // If no session ID or session ID has expired, generate a new token
-                const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                const token = jwt.sign({ studentId: student.id, email: student.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
 
-                await prisma.user.update({
+                await prisma.student.update({
                     where: { email },
                     data: {sessionId: token},
                 })
@@ -81,11 +78,11 @@ const loginController = async (req, res) => {
                 res.status(200).json({
                     message: 'Login successful',
                     data: {
-                        id: user.id,
-                        firstName: user.firstName,
-                        lastName: user.last_name,
-                        email: user.email,
-                        isEmailVerified: user.isEmailVerified,
+                        id: student.id,
+                        firstName: student.firstName,
+                        lastName: student.last_name,
+                        email: student.email,
+                        isEmailVerified: student.isEmailVerified,
                         sessionId: token,
                     }
                 });  
@@ -93,21 +90,21 @@ const loginController = async (req, res) => {
                 res.status(200).json({
                     message: 'Login successful',
                     data: {
-                        id: user.id,
-                        firstName: user.firstName,
-                        lastName: user.last_name,
-                        email: user.email,
-                        isEmailVerified: user.isEmailVerified,
-                        sessionId: token,
+                        id: student.id,
+                        firstName: student.firstName,
+                        lastName: student.last_name,
+                        email: student.email,
+                        isEmailVerified: student.isEmailVerified,
+                        sessionId: student.sessionId,
                     }
                 })
             }
         } catch(tokenError) {
             if(tokenError.name === 'TokenExpiredError'){
                 // Token has expired, generate a new one
-                const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                const token = jwt.sign({ studentId: student.id, email: student.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-                await prisma.user.update({
+                await prisma.student.update({
                     where: { email },
                     data: { sessionId: token },
                 });
@@ -115,11 +112,11 @@ const loginController = async (req, res) => {
                 res.status(200).json({
                     message: 'Login successful',
                     data: {
-                        id: user.id,
-                        firstName: user.firstName,
-                        lastName: user.last_name,
-                        email: user.email,
-                        isEmailVerified: user.isEmailVerified,
+                        id: student.id,
+                        firstName: student.firstName,
+                        lastName: student.last_name,
+                        email: student.email,
+                        isEmailVerified: student.isEmailVerified,
                         sessionId: token,
                     },
                 });

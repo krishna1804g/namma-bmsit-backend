@@ -14,87 +14,86 @@ datasource db {
 }
 
 model Student {
-  id                      String    @id @default(uuid())
-  firstName               String?   @db.VarChar(255)
-  lastName                String?   @db.VarChar(255)
-  userName                String?   @unique @db.VarChar(255)
-  usn String? @unique @db.VarChar(10)
-  deptartment String? 
-  semister Int?
-  phoneNo Int? @unique
-  email                   String?   @unique(map: "email") @db.VarChar(255)
-  password                String?   @db.VarChar(255)
-  sessionId               String?   @db.VarChar(255)
-  isEmailVerified         Boolean? @default(false)
-  isStudentOrganizer Boolean? @default(false)
-  otp                     String?   @db.VarChar(45)
-  createdAt               DateTime? @default(now()) @db.DateTime(0)
-  updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
-  eventStudentCoordinator Event?   @relation(name: "StudentOrganizer")
-  EventBooking EventBooking?
-  GrouptEventMapping GroupEventMapping[]
+  id                      String              @id @default(uuid())
+  firstName               String?             @db.VarChar(255)
+  lastName                String?             @db.VarChar(255)
+  userName                String?             @unique @db.VarChar(255)
+  usn                     String?             @unique @db.VarChar(10)
+  deptartment             String?
+  semister                Int?
+  phoneNo                 Int?                @unique
+  email                   String?             @unique(map: "email") @db.VarChar(255)
+  password                String?             @db.VarChar(255)
+  sessionId               String?             @db.VarChar(255)
+  isEmailVerified         Boolean?            @default(false)
+  isStudentOrganizer      Boolean?            @default(false)
+  otp                     String?             @db.VarChar(45)
+  createdAt               DateTime?           @default(now()) @db.DateTime(0)
+  updatedAt               DateTime?           @default(now()) @updatedAt @db.DateTime(0)
+  eventStudentCoordinator Event?              @relation(name: "StudentOrganizer")
+  EventBooking            EventBooking[]
+  GrouptEventMapping      GroupEventMapping[]
+
   @@unique([email])
 }
 
 model Event {
-  id                      String  @id @default(uuid())
+  id                      String        @id @default(uuid())
   categoryType            String? // e.g, academic, dept, clubs, fest etc, this can be tags
-  description             String @db.VarChar(500)
-  title                   String @unique(map: "Title") 
+  description             String        @db.VarChar(500)
+  title                   String        @unique(map: "Title")
   duration                Int? // in hours
   location                String?
   locationDetails         String? // additional details for location
-  dateOfEvent DateTime?
-  freeEvent Boolean?
+  dateOfEvent             DateTime?
+  freeEvent               Boolean?
   amount                  Int?
-  totalParticipants Int? @db.MediumInt() // total event participants
-  perTeamParticipants Int? @db.TinyInt() 
-  studentOrganizerHead    String? @unique
-  teacherCoordinator      String? @unique
+  totalParticipants       Int?          @db.MediumInt() // total event participants
+  perTeamParticipants     Int?          @default(1) @db.TinyInt()
+  studentOrganizerHead    String?       @unique
+  teacherCoordinator      String?       @unique
   requirements            String? //any prerequisites or materials required
   status                  String? // upcomming, ongoing or past
-  createdAt               DateTime? @default(now()) @db.DateTime(0)
-  updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  createdAt               DateTime?     @default(now()) @db.DateTime(0)
+  updatedAt               DateTime?     @default(now()) @updatedAt @db.DateTime(0)
   // Updates String? //any changes ( for notification purpose )
   // feedbackRating Int?  @default(0) // future
   // registrationDeadline Date?
   // tagsKeywords // search functionality
   // free or paisd
   // group or individual
-  eventStudentCoordinator Student?   @relation(name: "StudentOrganizer", fields: [studentOrganizerHead], references: [id])
-  eventTeacherCoordinator Teacher?   @relation(fields: [teacherCoordinator], references: [id])
-  EventBooking EventBooking?
+  eventStudentCoordinator Student?      @relation(name: "StudentOrganizer", fields: [studentOrganizerHead], references: [id])
+  eventTeacherCoordinator Teacher?      @relation(fields: [teacherCoordinator], references: [id])
+  EventBooking            EventBooking[]
 }
 
-
 model Teacher {
-  id String @id @default(uuid())
-  name String
-  teacherId String @unique 
-  email String @unique
-  password String 
-  department String?
-  sessionId               String?   @db.VarChar(255)
-  isEmailVerified         Boolean? @default(false)
-  otp                     String?   @db.VarChar(45)
-  createdAt               DateTime? @default(now()) @db.DateTime(0)
-  updatedAt               DateTime? @default(now()) @updatedAt @db.DateTime(0)
-  Event Event?
+  id              String    @id @default(uuid())
+  name            String
+  teacherId       String    @unique
+  email           String    @unique
+  password        String
+  department      String?
+  sessionId       String?   @db.VarChar(255)
+  isEmailVerified Boolean?  @default(false)
+  otp             String?   @db.VarChar(45)
+  createdAt       DateTime? @default(now()) @db.DateTime(0)
+  updatedAt       DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  Event           Event?
 }
 
 model EventBooking {
-  id String @id @default(uuid())
-  teamName String @unique
-  teamLeader String @unique
-  event String @unique
+  id           String  @id @default(uuid())
+  teamName     String?  @unique
+  teamLeader   String 
+  event        String?
   teamLeaderId Student @relation(fields: [teamLeader], references: [id])
-  eventId Event @relation(fields: [event], references: [id])
+  eventId      Event?   @relation(fields: [event], references: [id])
 }
 
 model GroupEventMapping {
-  id String @id @default(uuid())
-  teamMember String?
-  teamName String?
+  id           String   @id @default(uuid())
+  teamMember   String?
+  teamName     String?
   teamMemberId Student? @relation(fields: [teamMember], references: [id])
 }
-

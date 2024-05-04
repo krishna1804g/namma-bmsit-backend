@@ -21,7 +21,7 @@ const createEventController = async ( req, res ) => {
     
         // add this event to db
         const newEvent = await prisma.event.create({
-            data: {data}
+            data
         })
 
         console.log("CreatedEvent: ", newEvent)
@@ -29,6 +29,7 @@ const createEventController = async ( req, res ) => {
         res.status(201).json({ success: 'Event created successfully' })
 
     } catch(error){
+        console.log(error)
         res.status(500).json({ error: 'Internal server error' })
     }
 }

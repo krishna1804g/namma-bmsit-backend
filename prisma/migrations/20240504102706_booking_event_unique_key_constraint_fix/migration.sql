@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `user` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE `user`;
-
 -- CreateTable
 CREATE TABLE `Student` (
     `id` VARCHAR(191) NOT NULL,
@@ -16,6 +7,7 @@ CREATE TABLE `Student` (
     `usn` VARCHAR(10) NULL,
     `deptartment` VARCHAR(191) NULL,
     `semister` INTEGER NULL,
+    `phoneNo` INTEGER NULL,
     `email` VARCHAR(255) NULL,
     `password` VARCHAR(255) NULL,
     `sessionId` VARCHAR(255) NULL,
@@ -27,6 +19,7 @@ CREATE TABLE `Student` (
 
     UNIQUE INDEX `Student_userName_key`(`userName`),
     UNIQUE INDEX `Student_usn_key`(`usn`),
+    UNIQUE INDEX `Student_phoneNo_key`(`phoneNo`),
     UNIQUE INDEX `email`(`email`),
     UNIQUE INDEX `Student_email_key`(`email`),
     PRIMARY KEY (`id`)
@@ -45,7 +38,7 @@ CREATE TABLE `Event` (
     `freeEvent` BOOLEAN NULL,
     `amount` INTEGER NULL,
     `totalParticipants` MEDIUMINT NULL,
-    `perTeamParticipants` TINYINT NULL,
+    `perTeamParticipants` TINYINT NULL DEFAULT 1,
     `studentOrganizerHead` VARCHAR(191) NULL,
     `teacherCoordinator` VARCHAR(191) NULL,
     `requirements` VARCHAR(191) NULL,
@@ -54,6 +47,8 @@ CREATE TABLE `Event` (
     `updatedAt` DATETIME(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
 
     UNIQUE INDEX `Title`(`title`),
+    UNIQUE INDEX `Event_studentOrganizerHead_key`(`studentOrganizerHead`),
+    UNIQUE INDEX `Event_teacherCoordinator_key`(`teacherCoordinator`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -76,8 +71,37 @@ CREATE TABLE `Teacher` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `EventBooking` (
+    `id` VARCHAR(191) NOT NULL,
+    `teamName` VARCHAR(191) NULL,
+    `teamLeader` VARCHAR(191) NOT NULL,
+    `event` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `EventBooking_teamName_key`(`teamName`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `GroupEventMapping` (
+    `id` VARCHAR(191) NOT NULL,
+    `teamMember` VARCHAR(191) NULL,
+    `teamName` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Event` ADD CONSTRAINT `Event_studentOrganizerHead_fkey` FOREIGN KEY (`studentOrganizerHead`) REFERENCES `Student`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Event` ADD CONSTRAINT `Event_teacherCoordinator_fkey` FOREIGN KEY (`teacherCoordinator`) REFERENCES `Teacher`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventBooking` ADD CONSTRAINT `EventBooking_teamLeader_fkey` FOREIGN KEY (`teamLeader`) REFERENCES `Student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventBooking` ADD CONSTRAINT `EventBooking_event_fkey` FOREIGN KEY (`event`) REFERENCES `Event`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `GroupEventMapping` ADD CONSTRAINT `GroupEventMapping_teamMember_fkey` FOREIGN KEY (`teamMember`) REFERENCES `Student`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
