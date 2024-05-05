@@ -19,8 +19,8 @@ model Student {
   lastName                String?             @db.VarChar(255)
   userName                String?             @unique @db.VarChar(255)
   usn                     String?             @unique @db.VarChar(10)
-  deptartment             String?
-  semister                Int?
+  department             String?
+  semester                Int?
   phoneNo                 Int?                @unique
   email                   String?             @unique(map: "email") @db.VarChar(255)
   password                String?             @db.VarChar(255)

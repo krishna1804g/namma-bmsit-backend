@@ -17,13 +17,12 @@ const signupController = async (req, res) => {
     */
     try {
         const data = req.body;
-        console.log("random data: ", data)
-        if (!data.email || !data.password) {
+        if (!data.formData.email || !data.formData.password) {
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
         const existingStudent = await prisma.student.findUnique({
-            where: { email: data.email },
+            where: { email: data.formData.email },
         });
 
         if (existingStudent) {
@@ -31,11 +30,11 @@ const signupController = async (req, res) => {
         }
 
         // Hash the password
-        const hashedPassword = await bcrypt.hash(data.password, 10);
-        data.password = hashedPassword
+        const hashedPassword = await bcrypt.hash(data.formData.password, 10);
+        data.formData.password = hashedPassword
         
         const student = await prisma.student.create({
-            data
+            data: data.formData
         });
 
         return res.status(201).json({ message: 'Signup successful', studentId: student.id });

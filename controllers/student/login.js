@@ -15,18 +15,31 @@ const transporter = nodemailer.createTransport({
 
 const loginController = async (req, res) => {
     try {
-        const { email, password } = req.body;
-
-        if(!email || !password) {
-            return res.status(400).json({ error: 'Email and Password required' })
+        const { usernameOrEmail, password } = req.body;
+        console.log(usernameOrEmail, password)
+        if(!usernameOrEmail || !password) {
+            return res.status(400).json({ error: 'Email/username and Password required' })
         }
-
-        const student = await prisma.student.findUnique({
+        let student
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usernameOrEmail);
+        if (isEmail) {
+          // It's an email, send payload with email
+          const email = usernameOrEmail
+          student = await prisma.student.findUnique({
             where: { email }
         });
+        } else {
+            console.log("going")
+          // It's not an email, treat it as a username, send payload with username
+          const userName = usernameOrEmail
+          student = await prisma.student.findUnique({
+              where: { userName } 
+            });
+            console.log(student)
+        }
 
         if(!student) {
-            return res.status(404).jason({ error: 'student not found' })
+            return res.status(404).json({ error: 'student not found' })
         }
 
         const passwordMatch = await bcrypt.compare(password, student.password);
@@ -39,7 +52,7 @@ const loginController = async (req, res) => {
             const otp = otpGenerator.generate(4, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 
             await prisma.student.update({
-                    where: { email },
+                    where: { email: student.email },
                     data: { otp },
                 })
 
@@ -47,7 +60,7 @@ const loginController = async (req, res) => {
 
             const mailOptions = {
                 from: 'kishi14g@gmail.com',
-                to: email,
+                to: student.email,
                 subject: 'Verification Code',
                 text: `Your verification code is: ${ otp }`,
             };
@@ -71,7 +84,7 @@ const loginController = async (req, res) => {
 
 
                 await prisma.student.update({
-                    where: { email },
+                    where: { email: student.email },
                     data: {sessionId: token},
                 })
 
@@ -105,7 +118,7 @@ const loginController = async (req, res) => {
                 const token = jwt.sign({ studentId: student.id, email: student.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
                 await prisma.student.update({
-                    where: { email },
+                    where: { email: student.email },
                     data: { sessionId: token },
                 });
 
